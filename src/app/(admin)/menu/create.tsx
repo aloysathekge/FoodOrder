@@ -1,19 +1,36 @@
-import { Image, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Platform,
+} from "react-native";
 import React, { useState } from "react";
 import Button from "@/src/components/Button";
 import Colors from "@/src/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 export default function CreateProductScreen() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [error, setError] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const { id } = useLocalSearchParams();
+  const isUpdating = !!id;
   const onCreate = () => {
     if (!validation()) {
       return;
     }
     console.log(" item created");
+    resetFields();
+  };
+  const onUpdate = () => {
+    if (!validation()) {
+      return;
+    }
+    console.log(" updating an item");
     resetFields();
   };
   const resetFields = () => {
@@ -37,7 +54,31 @@ export default function CreateProductScreen() {
 
     return true;
   };
-
+  const onSubmit = () => {
+    if (isUpdating) {
+      onUpdate();
+    } else {
+      onCreate();
+    }
+  };
+  const onDelete = () => {};
+  const confirmDelete = () => {
+    if (Platform.OS === "web") {
+      console.log("Are you sure you want to delete?");
+      //onDelete()
+    } else {
+      Alert.alert("Confirm", "Are you sure you want to delete ", [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: onDelete,
+        },
+      ]);
+    }
+  };
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -55,7 +96,9 @@ export default function CreateProductScreen() {
   };
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Create Product" }} />
+      <Stack.Screen
+        options={{ title: isUpdating ? "Update Product" : "Create Product" }}
+      />
 
       <Image
         source={{
@@ -83,7 +126,12 @@ export default function CreateProductScreen() {
         onChangeText={setPrice}
       />
       <Text style={{ color: "red" }}>{error}</Text>
-      <Button text="Create" onPress={onCreate} />
+      <Button text={isUpdating ? "Update" : "Create"} onPress={onSubmit} />
+      {isUpdating && (
+        <Text onPress={confirmDelete} style={styles.selectImageText}>
+          Delete
+        </Text>
+      )}
     </View>
   );
 }
