@@ -1,41 +1,54 @@
 import {
+  ActivityIndicator,
   Image,
   StyleSheet,
   Text,
-  Touchable,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import products from "@/assets/data/products";
 import Button from "@/src/components/Button";
 import { useCart } from "@/src/providers/CartProvider";
 import { PizzaSize } from "@/src/types";
+import { useProduct } from "@/src/api/products";
+import { meal } from "@/src/components/ProductListItem";
 
 export default function ProductDetailsScreen() {
-  const Size: PizzaSize[] = ["S", "M", "L", "XL"];
-  const { id } = useLocalSearchParams();
-  const { addItem } = useCart();
-  const product = products.find((item) => item.id.toString() === id);
-  const [selectedSize, setSelectedSize] = useState<PizzaSize>("S");
   const router = useRouter();
-  if (!product) {
-    return <Text>no product found</Text>;
+  const Size: PizzaSize[] = ["S", "M", "L", "XL"];
+  const { id: idString } = useLocalSearchParams();
+
+  const id = parseFloat(typeof idString === "string" ? idString : idString[0]);
+
+  const { data: product, error, isLoading } = useProduct(id);
+  const { addItem } = useCart();
+  const [selectedSize, setSelectedSize] = useState<PizzaSize>("S");
+  if (isLoading) {
+    return <ActivityIndicator size={"small"} />;
   }
-  {
-    console.log(selectedSize);
+  if (error) {
+    return <Text>Failed to load data</Text>;
   }
+  console.log("product name is", product.name);
+
   const addToCart = () => {
     addItem(product, selectedSize);
     router.push("/cart");
   };
-
+  if (isLoading) {
+    return <ActivityIndicator size={"small"} />;
+  }
+  if (error) {
+    return <Text>Failed to load data</Text>;
+  }
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: product.name }} />
+      <Stack.Screen
+        options={{ title: isLoading ? "Loading..." : product.name }}
+      />
       <Image
-        source={{ uri: product.image }}
+        source={{ uri: product.image || meal }}
         style={{ width: "100%", aspectRatio: 1 }}
       />
       <Text style={{ fontSize: 16 }}>Select Size</Text>

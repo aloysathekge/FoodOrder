@@ -1,9 +1,11 @@
-import { Image, StyleSheet } from "react-native";
-import { Text, View } from "@/src/components/Themed";
+import { Image, Pressable, StyleSheet } from "react-native";
+import { Text } from "@/src/components/Themed";
 import Colors from "@/src/constants/Colors";
+
 import { Product } from "../types";
 import { Link, useSegments } from "expo-router";
-
+export const meal =
+  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/veggie.png";
 export const ProductListItem = ({ product }: { product: Product }) => {
   const segment = useSegments();
   console.log(segment);
@@ -11,14 +13,11 @@ export const ProductListItem = ({ product }: { product: Product }) => {
   return (
     // @ts-expect-error This is necessary because <explanation>
     <Link href={`/${segment[0]}/menu/${product.id}`} asChild>
-      <View style={styles.container}>
-        <Image
-          source={{ uri: product.image || undefined }}
-          style={styles.image}
-        />
+      <Pressable style={styles.container}>
+        <Image source={{ uri: product.image || meal }} style={styles.image} />
         <Text style={styles.title}>{product.name}</Text>
         <Text style={styles.price}>R{product.price}</Text>
-      </View>
+      </Pressable>
     </Link>
   );
 };

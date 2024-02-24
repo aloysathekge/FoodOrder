@@ -1,33 +1,34 @@
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   StyleSheet,
   Text,
-  Touchable,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useState } from "react";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import products from "@/assets/data/products";
 import Button from "@/src/components/Button";
 import { useCart } from "@/src/providers/CartProvider";
 import { PizzaSize } from "@/src/types";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
+import { useProduct } from "@/src/api/products";
 
 export default function ProductDetailsScreen() {
   const Size: PizzaSize[] = ["S", "M", "L", "XL"];
-  const { id } = useLocalSearchParams();
+  const { id: idString } = useLocalSearchParams();
+
+  const id = parseFloat(typeof idString === "string" ? idString : idString[0]);
+  const { data: product, error, isLoading } = useProduct(id);
   const { addItem } = useCart();
-  const product = products.find((item) => item.id.toString() === id);
   const [selectedSize, setSelectedSize] = useState<PizzaSize>("S");
   const router = useRouter();
-  if (!product) {
-    return <Text>no product found</Text>;
+  if (isLoading) {
+    <ActivityIndicator />;
   }
-  {
-    console.log(selectedSize);
+  if (error) {
+    <Text>Failed to load data</Text>;
   }
   const addToCart = () => {
     addItem(product, selectedSize);
@@ -57,15 +58,18 @@ export default function ProductDetailsScreen() {
           ),
         }}
       />
-      <Stack.Screen options={{ title: product.name }} />
-      <Image
-        source={{ uri: product.image }}
-        style={{ width: "100%", aspectRatio: 1 }}
-      />
-
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 4 }}>
-        R{product.price}
-      </Text>
+      {product && (
+        <>
+          <Stack.Screen options={{ title: product.name }} />
+          <Image
+            source={{ uri: product.image }}
+            style={{ width: "100%", aspectRatio: 1 }}
+          />
+          <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 4 }}>
+            R{product.price}
+          </Text>
+        </>
+      )}
     </View>
   );
 }

@@ -1,13 +1,29 @@
-import products from "@/assets/data/products";
+import { useProductList } from "@/src/api/products";
 import { ProductListItem } from "@/src/components/ProductListItem";
-import { View, StyleSheet, FlatList } from "react-native";
+import { supabase } from "@/src/lib/supabase";
+import { Link } from "expo-router";
+import { Text } from "react-native";
+import { StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { Button } from "react-native-elements";
 export default function TabOneScreen() {
+  const { data: products, error, isLoading } = useProductList();
+
+  if (isLoading) {
+    <ActivityIndicator />;
+  }
+  if (error) {
+    <Text>Failed to load data</Text>;
+  }
   return (
-    <FlatList
-      data={products}
-      renderItem={({ item }) => <ProductListItem product={item} />}
-      numColumns={2}
-    />
+    <>
+      <FlatList
+        data={products}
+        renderItem={({ item }) => <ProductListItem product={item} />}
+        numColumns={2}
+      />
+
+      <Button title={"Log out"} onPress={() => supabase.auth.signOut()} />
+    </>
   );
 }
 

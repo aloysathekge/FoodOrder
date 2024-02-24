@@ -6,32 +6,81 @@ import {
   TextInput,
   View,
   Platform,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@/src/components/Button";
 import Colors from "@/src/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  useDeleteProduct,
+  useInsertProduct,
+  useProduct,
+  useUpdateProduct,
+} from "@/src/api/products";
 export default function CreateProductScreen() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [error, setError] = useState("");
   const [image, setImage] = useState<string | null>(null);
-  const { id } = useLocalSearchParams();
-  const isUpdating = !!id;
+  const { id: idString } = useLocalSearchParams();
+  const isUpdating = !!idString;
+  const id = parseFloat(
+    typeof idString === "string" ? idString : idString?.[0]
+  );
+  const router = useRouter();
+  const { mutate: insertProduct } = useInsertProduct();
+  const { mutate: updateProduct } = useUpdateProduct();
+  const { data: updatingProduct } = useProduct(id);
+  const { mutate: deleteProduct, isPending } = useDeleteProduct();
+
+  useEffect(() => {
+    if (updatingProduct) {
+      setName(updatingProduct.name);
+      setImage(updatingProduct.image);
+      setPrice(updatingProduct.price.toString());
+    }
+  }, [updatingProduct]);
+
   const onCreate = () => {
     if (!validation()) {
       return;
     }
-    console.log(" item created");
-    resetFields();
+    console.log(name, price);
+    insertProduct(
+      { name, image, price: parseFloat(price) },
+      {
+        onSuccess: () => {
+          console.log(" item created");
+          resetFields();
+          router.back();
+        },
+      }
+    );
   };
   const onUpdate = () => {
     if (!validation()) {
+      console.log("Validation error");
       return;
     }
-    console.log(" updating an item");
-    resetFields();
+    console.log(name, price);
+
+    if (typeof price !== "undefined") {
+      updateProduct(
+        { id, name, image, price: parseFloat(price) },
+        {
+          onSuccess: () => {
+            console.log(" item Updated");
+            resetFields();
+            router.back();
+          },
+          onError: (error) => {
+            console.log(error);
+          },
+        }
+      );
+    }
   };
   const resetFields = () => {
     setName("");
@@ -61,7 +110,16 @@ export default function CreateProductScreen() {
       onCreate();
     }
   };
-  const onDelete = () => {};
+  const onDelete = () => {
+    deleteProduct(id, {
+      onSuccess: () => {
+        router.replace("/(admin)");
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
+  };
   const confirmDelete = () => {
     if (Platform.OS === "web") {
       console.log("Are you sure you want to delete?");
@@ -94,7 +152,9 @@ export default function CreateProductScreen() {
       setImage(result.assets[0].uri || null);
     }
   };
-  return (
+  return isPending ? (
+    <ActivityIndicator />
+  ) : (
     <View style={styles.container}>
       <Stack.Screen
         options={{ title: isUpdating ? "Update Product" : "Create Product" }}
