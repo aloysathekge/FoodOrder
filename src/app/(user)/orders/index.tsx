@@ -1,10 +1,21 @@
-import { FlatList, StyleSheet, View, Text, Pressable } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  Text,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
-import orders from "@/assets/data/orders";
 import OrderListItem from "@/src/components/OrderListItem";
-import { OrderStatusList } from "@/src/types";
-import Colors from "@/src/constants/Colors";
+import { useMyOrderList } from "@/src/api/orders";
 export default function OrdersScreen() {
+  const { data: orders, error, isLoading } = useMyOrderList();
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+  if (error) {
+    return <Text>Error with this: {error.message}</Text>;
+  }
   return (
     <View>
       <FlatList

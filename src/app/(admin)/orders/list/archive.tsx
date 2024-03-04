@@ -1,8 +1,25 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React from "react";
-import orders from "@/assets/data/orders";
 import OrderListItem from "@/src/components/OrderListItem";
+import { useAdminOrderList } from "@/src/api/orders";
 export default function ArchiveTap() {
+  const {
+    data: orders,
+    error,
+    isLoading,
+  } = useAdminOrderList({ archived: true });
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+  if (error) {
+    return <Text>Error with this: {error.message}</Text>;
+  }
   return (
     <View>
       <FlatList

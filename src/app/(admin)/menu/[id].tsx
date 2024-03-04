@@ -31,8 +31,12 @@ export default function ProductDetailsScreen() {
     <Text>Failed to load data</Text>;
   }
   const addToCart = () => {
-    addItem(product, selectedSize);
-    router.push("/cart");
+    if (product) {
+      addItem(product, selectedSize);
+      router.push("/cart");
+    } else {
+      // Handle the case where product is undefined
+    }
   };
 
   return (
@@ -62,7 +66,9 @@ export default function ProductDetailsScreen() {
         <>
           <Stack.Screen options={{ title: product.name }} />
           <Image
-            source={{ uri: product.image }}
+            source={{
+              uri: product.image || "https://via.placeholder.com/200x200",
+            }}
             style={{ width: "100%", aspectRatio: 1 }}
           />
           <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 4 }}>

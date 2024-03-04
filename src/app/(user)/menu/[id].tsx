@@ -12,7 +12,7 @@ import Button from "@/src/components/Button";
 import { useCart } from "@/src/providers/CartProvider";
 import { PizzaSize } from "@/src/types";
 import { useProduct } from "@/src/api/products";
-import { meal } from "@/src/components/ProductListItem";
+import { defaultImage } from "@/src/components/ProductListItem";
 
 export default function ProductDetailsScreen() {
   const router = useRouter();
@@ -30,11 +30,15 @@ export default function ProductDetailsScreen() {
   if (error) {
     return <Text>Failed to load data</Text>;
   }
-  console.log("product name is", product.name);
+  console.log("product name is", product?.name);
 
   const addToCart = () => {
-    addItem(product, selectedSize);
-    router.push("/cart");
+    if (product) {
+      addItem(product, selectedSize);
+      router.push("/cart");
+    } else {
+      // Handle the case where product is undefined
+    }
   };
   if (isLoading) {
     return <ActivityIndicator size={"small"} />;
@@ -45,10 +49,12 @@ export default function ProductDetailsScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen
-        options={{ title: isLoading ? "Loading..." : product.name }}
+        options={{ title: isLoading ? "Loading..." : product?.name }}
       />
       <Image
-        source={{ uri: product.image || meal }}
+        source={{
+          uri: product?.image || defaultImage,
+        }}
         style={{ width: "100%", aspectRatio: 1 }}
       />
       <Text style={{ fontSize: 16 }}>Select Size</Text>
@@ -78,7 +84,7 @@ export default function ProductDetailsScreen() {
         ))}
       </View>
       <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: "auto" }}>
-        R{product.price}
+        R{product?.price}
       </Text>
       <Button text="Add To Cart" onPress={() => addToCart()} />
     </View>

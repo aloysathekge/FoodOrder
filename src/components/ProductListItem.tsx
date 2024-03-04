@@ -4,9 +4,15 @@ import Colors from "@/src/constants/Colors";
 
 import { Product } from "../types";
 import { Link, useSegments } from "expo-router";
-export const meal =
-  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/veggie.png";
-export const ProductListItem = ({ product }: { product: Product }) => {
+import { Tables } from "../database.types";
+
+export const defaultImage =
+  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
+export const ProductListItem = ({
+  product,
+}: {
+  product: Tables<"products">;
+}) => {
   const segment = useSegments();
   console.log(segment);
 
@@ -14,7 +20,12 @@ export const ProductListItem = ({ product }: { product: Product }) => {
     // @ts-expect-error This is necessary because <explanation>
     <Link href={`/${segment[0]}/menu/${product.id}`} asChild>
       <Pressable style={styles.container}>
-        <Image source={{ uri: product.image || meal }} style={styles.image} />
+        <Image
+          source={{
+            uri: product.image || defaultImage,
+          }}
+          style={styles.image}
+        />
         <Text style={styles.title}>{product.name}</Text>
         <Text style={styles.price}>R{product.price}</Text>
       </Pressable>

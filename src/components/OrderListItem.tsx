@@ -1,9 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Order } from "../types";
+import { Tables } from "../types";
 import moment from "moment";
 import { Link, useSegments } from "expo-router";
+
 type orderListItemProps = {
-  order: Order;
+  order: Tables<"orders">;
 };
 export default function OrderListItem({ order }: orderListItemProps) {
   const segments = useSegments();

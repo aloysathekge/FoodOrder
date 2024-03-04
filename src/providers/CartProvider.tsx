@@ -4,26 +4,33 @@ import React, {
   useContext,
   useState,
 } from "react";
-import { CartItem, Product } from "../types";
+import { CartItem, InsertTables, Product, Tables } from "../types";
 
 import { randomUUID } from "expo-crypto";
+import { useInsertOrder } from "../api/orders";
+import { useRouter } from "expo-router";
+import { useInsertOrderItems } from "../api/order_items";
 
 type CartType = {
   items: CartItem[];
   addItem: (product: Product, size: CartItem["size"]) => void;
   updateQuantity: (itemId: string, amount: -1 | 1) => void;
   total: number;
+  checkout: () => void;
 };
 const CartContext = createContext<CartType>({
   items: [],
   addItem: () => {},
   updateQuantity: () => {},
   total: 0,
+  checkout: () => {},
 });
 
 const CartProvider = ({ children }: PropsWithChildren) => {
   const [items, setItems] = useState<CartItem[]>([]);
-
+  const { mutate: insertOrder } = useInsertOrder();
+  const { mutate: insertOrderItem } = useInsertOrderItems();
+  const router = useRouter();
   const addItem = (product: Product, size: CartItem["size"]) => {
     const existingItem = items.find(
       (item) => item.product === product && item.size === size
@@ -56,8 +63,39 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     (accumulator, item) => accumulator + item.product.price * item.quantity,
     0
   );
+  const clearCart = () => {
+    setItems([]);
+  };
+  const checkout = () => {
+    console.warn("Checkout");
+    insertOrder(
+      {
+        total,
+      },
+      {
+        onSuccess: saveOrderItems,
+      }
+    );
+  };
+
+  const saveOrderItems = (newOrder: Tables<"orders">) => {
+    insertOrderItem(
+      {
+        items,
+        order_id: newOrder.id,
+      },
+      {
+        onSuccess() {
+          setItems([]);
+          router.push(`/(user)/orders/${newOrder.id}`);
+        },
+      }
+    );
+  };
   return (
-    <CartContext.Provider value={{ items, addItem, updateQuantity, total }}>
+    <CartContext.Provider
+      value={{ items, addItem, updateQuantity, total, checkout }}
+    >
       {children}
     </CartContext.Provider>
   );
