@@ -1,10 +1,4 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import React from "react";
 import OrderListItem from "@/src/components/OrderListItem";
 import { useAdminOrderList } from "@/src/api/orders";
@@ -30,5 +24,3 @@ export default function ArchiveTap() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({});

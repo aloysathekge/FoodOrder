@@ -2,19 +2,18 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
 import React from "react";
 import { Stack, useLocalSearchParams } from "expo-router";
-import orders from "@/assets/data/orders";
 import OrderListItem from "@/src/components/OrderListItem";
 import OrderItemListItem from "@/src/components/OrderItemListItem";
 import { OrderStatusList } from "@/src/types";
 import Colors from "@/src/constants/Colors";
 import { useOrderDetails, useUpdateOrder } from "@/src/api/orders";
 import { useUpdatetOrderSubscription } from "@/src/api/orders/subscriptions";
+import { notifyUserAboutOrder } from "@/src/lib/notifications";
 
 export default function OrderDetailsScreen() {
   const { id: idString } = useLocalSearchParams();
@@ -29,13 +28,17 @@ export default function OrderDetailsScreen() {
   if (error) {
     return <Text>Error with this: {error.message}</Text>;
   }
-  const changeStatus = (status: string) => {
+  const changeStatus = async (status: string) => {
     updateOrder({ id: id, updatedFields: { status } });
+    console.log("updating status of user: ", order?.user_id);
+    if (order) {
+      await notifyUserAboutOrder(order);
+    }
   };
   return (
     <View style={{ padding: 10, gap: 5 }}>
       <Stack.Screen options={{ title: `Order #${id}` }} />
-      <OrderListItem order={order} />
+      {order && <OrderListItem order={order} />}
       <FlatList
         data={order && order.order_items}
         renderItem={({ item }) => <OrderItemListItem item={item} />}
@@ -79,5 +82,3 @@ export default function OrderDetailsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({});

@@ -1,16 +1,13 @@
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import React, { useState } from "react";
-import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import Button from "@/src/components/Button";
-import { useCart } from "@/src/providers/CartProvider";
-import { PizzaSize } from "@/src/types";
+import React from "react";
+import { Link, Stack, useLocalSearchParams } from "expo-router";
+
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { useProduct } from "@/src/api/products";
@@ -18,28 +15,24 @@ import RemoteImage from "@/src/components/RemoteImage";
 import { defaultImage } from "@/src/components/ProductListItem";
 
 export default function ProductDetailsScreen() {
-  const Size: PizzaSize[] = ["S", "M", "L", "XL"];
   const { id: idString } = useLocalSearchParams();
 
   const id = parseFloat(typeof idString === "string" ? idString : idString[0]);
   const { data: product, error, isLoading } = useProduct(id);
-  const { addItem } = useCart();
-  const [selectedSize, setSelectedSize] = useState<PizzaSize>("S");
-  const router = useRouter();
   if (isLoading) {
     <ActivityIndicator />;
   }
   if (error) {
     <Text>Failed to load data</Text>;
   }
-  const addToCart = () => {
-    if (product) {
-      addItem(product, selectedSize);
-      router.push("/cart");
-    } else {
-      // Handle the case where product is undefined
-    }
-  };
+  // const addToCart = () => {
+  //   if (product) {
+  //     addItem(product, selectedSize);
+  //     router.push("/cart");
+  //   } else {
+  //     // Handle the case where product is undefined
+  //   }
+  // };
 
   return (
     <View style={styles.container}>

@@ -1,10 +1,8 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Redirect, Tabs } from "expo-router";
-import { Pressable } from "react-native";
+import { Redirect, Tabs } from "expo-router";
 
 import Colors from "@/src/constants/Colors";
-import { useColorScheme } from "@/src/components/useColorScheme";
 import { useClientOnlyValue } from "@/src/components/useClientOnlyValue";
 import { useAuth } from "@/src/providers/AuthProvider";
 
@@ -17,7 +15,6 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   {
     console.log("Am in a Admin mode");
   }

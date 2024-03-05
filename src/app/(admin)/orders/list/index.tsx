@@ -1,15 +1,7 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import React, { useEffect } from "react";
+import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import React from "react";
 import OrderListItem from "@/src/components/OrderListItem";
 import { useAdminOrderList } from "@/src/api/orders";
-import { supabase } from "@/src/lib/supabase";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useInsertOrderSubscription } from "@/src/api/orders/subscriptions";
 export default function OrdersScreen() {
   const {
@@ -35,5 +27,3 @@ export default function OrdersScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({});

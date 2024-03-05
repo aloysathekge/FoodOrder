@@ -1,15 +1,22 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import React from "react";
 import Colors from "../constants/Colors";
-import { OrderItem, Tables } from "../types";
+import { Tables } from "../types";
 import { defaultImage } from "./ProductListItem";
 import RemoteImage from "./RemoteImage";
 
+type OrderItemWithProduct = Tables<"order_items"> & {
+  products: Tables<"products"> | null;
+};
 type OrderItemListItemProps = {
-  item: { products: Tables<"products"> } & Tables<"order_items">;
+  item: OrderItemWithProduct;
 };
 
 const OrderItemListItem = ({ item }: OrderItemListItemProps) => {
+  if (!item.products) {
+    return <Text>No product information available</Text>;
+  }
+
   return (
     <View style={styles.container}>
       <RemoteImage
