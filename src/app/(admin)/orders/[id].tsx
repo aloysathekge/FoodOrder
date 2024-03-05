@@ -21,13 +21,14 @@ export default function OrderDetailsScreen() {
   const id = parseFloat(typeof idString === "string" ? idString : idString[0]);
   const { data: order, isLoading, error } = useOrderDetails(id);
   const { mutate: updateOrder } = useUpdateOrder();
+  useUpdatetOrderSubscription(id);
+
   if (isLoading) {
     return <ActivityIndicator />;
   }
   if (error) {
     return <Text>Error with this: {error.message}</Text>;
   }
-  useUpdatetOrderSubscription(id);
   const changeStatus = (status: string) => {
     updateOrder({ id: id, updatedFields: { status } });
   };
