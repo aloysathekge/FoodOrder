@@ -1,13 +1,14 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 import Colors from "../constants/Colors";
 import { forwardRef } from "react";
 
 type ButtonProps = {
   text: string;
+  containerStyle?: ViewStyle;
 } & React.ComponentPropsWithoutRef<typeof Pressable>;
 
 const Button = forwardRef<View | null, ButtonProps>(
-  ({ text, ...pressableProps }, ref) => {
+  ({ text, containerStyle, ...pressableProps }, ref) => {
     return (
       <Pressable
         ref={ref}
@@ -17,6 +18,7 @@ const Button = forwardRef<View | null, ButtonProps>(
           {
             opacity: pressed ? 0.5 : 1,
           },
+          containerStyle,
         ]}
       >
         <Text style={styles.text}>{text}</Text>

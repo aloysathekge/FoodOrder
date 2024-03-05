@@ -2,9 +2,9 @@ import { Image, Pressable, StyleSheet } from "react-native";
 import { Text } from "@/src/components/Themed";
 import Colors from "@/src/constants/Colors";
 
-import { Product } from "../types";
 import { Link, useSegments } from "expo-router";
 import { Tables } from "../database.types";
+import RemoteImage from "./RemoteImage";
 
 export const defaultImage =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
@@ -20,10 +20,9 @@ export const ProductListItem = ({
     // @ts-expect-error This is necessary because <explanation>
     <Link href={`/${segment[0]}/menu/${product.id}`} asChild>
       <Pressable style={styles.container}>
-        <Image
-          source={{
-            uri: product.image || defaultImage,
-          }}
+        <RemoteImage
+          path={product.image}
+          fallback={defaultImage}
           style={styles.image}
         />
         <Text style={styles.title}>{product.name}</Text>

@@ -4,7 +4,6 @@ import { supabase } from "@/src/lib/supabase";
 import { Link } from "expo-router";
 import { Text } from "react-native";
 import { StyleSheet, FlatList, ActivityIndicator } from "react-native";
-import { Button } from "react-native-elements";
 export default function TabOneScreen() {
   const { data: products, error, isLoading } = useProductList();
 
@@ -21,8 +20,6 @@ export default function TabOneScreen() {
         renderItem={({ item }) => <ProductListItem product={item} />}
         numColumns={2}
       />
-
-      <Button title={"Log out"} onPress={() => supabase.auth.signOut()} />
     </>
   );
 }

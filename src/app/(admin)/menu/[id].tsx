@@ -14,6 +14,8 @@ import { PizzaSize } from "@/src/types";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { useProduct } from "@/src/api/products";
+import RemoteImage from "@/src/components/RemoteImage";
+import { defaultImage } from "@/src/components/ProductListItem";
 
 export default function ProductDetailsScreen() {
   const Size: PizzaSize[] = ["S", "M", "L", "XL"];
@@ -65,10 +67,9 @@ export default function ProductDetailsScreen() {
       {product && (
         <>
           <Stack.Screen options={{ title: product.name }} />
-          <Image
-            source={{
-              uri: product.image || "https://via.placeholder.com/200x200",
-            }}
+          <RemoteImage
+            path={product.image}
+            fallback={defaultImage}
             style={{ width: "100%", aspectRatio: 1 }}
           />
           <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 4 }}>

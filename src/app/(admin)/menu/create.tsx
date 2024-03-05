@@ -47,6 +47,28 @@ export default function CreateProductScreen() {
     }
   }, [updatingProduct]);
 
+  const uploadImage = async () => {
+    if (!image?.startsWith("file://")) {
+      return;
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(image, {
+      encoding: "base64",
+    });
+    const filePath = `${randomUUID()}.png`;
+    const contentType = "image/png";
+    const { data, error } = await supabase.storage
+      .from("product-image")
+      .upload(filePath, decode(base64), { contentType });
+
+    if (data) {
+      console.log("image path is :", data.path);
+      return data.path;
+    }
+    if (error) {
+      console.log("error occured :", error);
+    }
+  };
   const onCreate = async () => {
     if (!validation()) {
       return;
@@ -60,19 +82,23 @@ export default function CreateProductScreen() {
           resetFields();
           router.back();
         },
+        onError: () => {
+          console.log(error);
+        },
       }
     );
   };
-  const onUpdate = () => {
+  const onUpdate = async () => {
     if (!validation()) {
       console.log("Validation error");
       return;
     }
     console.log(name, price);
+    const imagePath = await uploadImage();
 
     if (typeof price !== "undefined") {
       updateProduct(
-        { id, name, image, price: parseFloat(price) },
+        { id, name, image: imagePath, price: parseFloat(price) },
         {
           onSuccess: () => {
             console.log(" item Updated");
@@ -142,24 +168,6 @@ export default function CreateProductScreen() {
     }
   };
 
-  const uploadImage = async () => {
-    if (!image?.startsWith("file://")) {
-      return;
-    }
-
-    const base64 = await FileSystem.readAsStringAsync(image, {
-      encoding: "base64",
-    });
-    const filePath = `${randomUUID()}.png`;
-    const contentType = "image/png";
-    const { data, error } = await supabase.storage
-      .from("product-images")
-      .upload(filePath, decode(base64), { contentType });
-
-    if (data) {
-      return data.path;
-    }
-  };
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     const result = await ImagePicker.launchImageLibraryAsync({

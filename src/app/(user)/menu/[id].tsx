@@ -13,6 +13,7 @@ import { useCart } from "@/src/providers/CartProvider";
 import { PizzaSize } from "@/src/types";
 import { useProduct } from "@/src/api/products";
 import { defaultImage } from "@/src/components/ProductListItem";
+import RemoteImage from "@/src/components/RemoteImage";
 
 export default function ProductDetailsScreen() {
   const router = useRouter();
@@ -51,10 +52,9 @@ export default function ProductDetailsScreen() {
       <Stack.Screen
         options={{ title: isLoading ? "Loading..." : product?.name }}
       />
-      <Image
-        source={{
-          uri: product?.image || defaultImage,
-        }}
+      <RemoteImage
+        path={product?.image}
+        fallback={defaultImage}
         style={{ width: "100%", aspectRatio: 1 }}
       />
       <Text style={{ fontSize: 16 }}>Select Size</Text>
