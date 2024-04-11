@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, {
   PropsWithChildren,
   createContext,
@@ -25,8 +26,17 @@ Notifications.setNotificationHandler({
 interface NotificationContextValue {
   expoPushToken: string | undefined;
   notification: Notifications.Notification | null;
-  sendPushNotification: (expoPushToken: string) => Promise<void>;
-  schedulePushNotification: () => Promise<void>;
+  sendPushNotification: (
+    expoPushToken: string,
+    title: string,
+    body: string,
+    data: { data: string; url: string }
+  ) => Promise<void>;
+  schedulePushNotification: (
+    title: string,
+    body: string,
+    data: { data: string; url: string }
+  ) => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(
@@ -127,13 +137,21 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  const sendPushNotification = async (expoPushToken: string) => {
+  const sendPushNotification = async (
+    expoPushToken: string,
+    title: string,
+    body: string,
+    data: { data: string; url: string }
+  ) => {
     const message = {
       to: expoPushToken,
       sound: "default",
-      title: "Original Title",
-      body: "And here is the body!",
-      data: { someData: "goes here" },
+      title,
+      body,
+      data: {
+        ...data,
+        url: data.url, // Include the url property in the data object
+      },
     };
 
     await fetch("https://exp.host/--/api/v2/push/send", {
@@ -147,12 +165,16 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
     });
   };
 
-  const schedulePushNotification = async () => {
+  const schedulePushNotification = async (
+    title: string,
+    body: string,
+    data: { data: string; url: string }
+  ) => {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Layo",
-        body: "Arsenal vs Barcelona",
-        data: { data: "goes here", url: "/(user)/menu/" },
+        title: title,
+        body: body,
+        data: data,
       },
       trigger: {
         seconds: 5,

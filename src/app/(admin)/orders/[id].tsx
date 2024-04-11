@@ -13,7 +13,9 @@ import { OrderStatusList } from "@/src/types";
 import Colors from "@/src/constants/Colors";
 import { useOrderDetails, useUpdateOrder } from "@/src/api/orders";
 import { useUpdatetOrderSubscription } from "@/src/api/orders/subscriptions";
-import { notifyUserAboutOrder } from "@/src/lib/notifications";
+import { supabase } from "@/src/lib/supabase";
+import { Tables } from "@/src/database.types";
+//import { notifyUserAboutOrder } from "@/src/lib/notifications";
 
 export default function OrderDetailsScreen() {
   const { id: idString } = useLocalSearchParams();
@@ -32,8 +34,22 @@ export default function OrderDetailsScreen() {
     updateOrder({ id: id, updatedFields: { status } });
     console.log("updating status of user: ", order?.user_id);
     if (order) {
-      await notifyUserAboutOrder(order);
+      notifyUserAboutOrderUpdate(order);
     }
+  };
+
+  const getUserToken = async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("expo_push_token")
+      .eq("id", userId)
+      .single();
+    return data?.expo_push_token;
+  };
+
+  const notifyUserAboutOrderUpdate = async (order: Tables<"orders">) => {
+    const token = await getUserToken(order.user_id);
+    console.log("Notifying : ", token);
   };
   return (
     <View style={{ padding: 10, gap: 5 }}>

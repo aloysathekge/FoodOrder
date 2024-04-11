@@ -5,11 +5,19 @@ import { supabase } from "@/src/lib/supabase";
 import { useNotification } from "@/src/providers/NotificationProvider";
 
 export default function ProfileScreen() {
-  const { expoPushToken, sendPushNotification, notification } =
-    useNotification();
+  const {
+    expoPushToken,
+    sendPushNotification,
+    notification,
+    schedulePushNotification,
+  } = useNotification();
   const handleSendNotification = async () => {
     if (expoPushToken) {
-      await sendPushNotification(expoPushToken);
+      const title = "Food Ordering";
+      const body = "your food is being cooked";
+      const data = { data: "Data goes here", url: "/(user)/menu/" };
+      await sendPushNotification(expoPushToken, title, body, data);
+      //await schedulePushNotification();
     }
   };
   return (
