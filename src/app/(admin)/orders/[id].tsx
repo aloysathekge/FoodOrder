@@ -15,6 +15,7 @@ import { useOrderDetails, useUpdateOrder } from "@/src/api/orders";
 import { useUpdatetOrderSubscription } from "@/src/api/orders/subscriptions";
 import { supabase } from "@/src/lib/supabase";
 import { Tables } from "@/src/database.types";
+import { useNotification } from "@/src/providers/NotificationProvider";
 //import { notifyUserAboutOrder } from "@/src/lib/notifications";
 
 export default function OrderDetailsScreen() {
@@ -23,6 +24,13 @@ export default function OrderDetailsScreen() {
   const { data: order, isLoading, error } = useOrderDetails(id);
   const { mutate: updateOrder } = useUpdateOrder();
   useUpdatetOrderSubscription(id);
+
+  const {
+    expoPushToken,
+    sendPushNotification,
+    notification,
+    schedulePushNotification,
+  } = useNotification();
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -50,6 +58,14 @@ export default function OrderDetailsScreen() {
   const notifyUserAboutOrderUpdate = async (order: Tables<"orders">) => {
     const token = await getUserToken(order.user_id);
     console.log("Notifying : ", token);
+
+    if (token) {
+      const title = "Food Ordering";
+      const body = `Order number # ${order.id} is being ${order.status}`;
+      const data = { data: "Data goes here", url: "/(user)/menu/" };
+      await sendPushNotification(token, title, body, data);
+      //await schedulePushNotification();
+    }
   };
   return (
     <View style={{ padding: 10, gap: 5 }}>

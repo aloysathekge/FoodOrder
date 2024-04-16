@@ -30,7 +30,7 @@ export default function ProfileScreen() {
     >
       <Text>ProfileScreen</Text>
       <Text>{expoPushToken}</Text>
-      <Text>Notification title: {notification?.request.content.title}</Text>
+      <Text>Notification title: {notification?.request.content.body}</Text>
       <Button text="Send Notification" onPress={handleSendNotification} />
 
       <Button

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, {
   PropsWithChildren,
   createContext,
@@ -47,8 +46,21 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
   const [expoPushToken, setExpoPushToken] = useState<string | undefined>("");
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
-  const { session } = useAuth();
-  const userId = session?.user.id;
+  const { profile, loading } = useAuth();
+
+  const savePushToken = async (newToken: string | undefined) => {
+    setExpoPushToken(newToken);
+    if (!newToken || !profile) {
+      return;
+    }
+    console.log("new token ready to be saved:", newToken);
+    // update the token in the database
+    const { error } = await supabase
+      .from("profiles")
+      .update({ expo_push_token: newToken })
+      .eq("id", profile.id);
+    console.log("error message, is", error);
+  };
 
   const registerForPushNotificationsAsync = async () => {
     let token: ExpoPushToken | undefined;
@@ -80,7 +92,8 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
       token = await Notifications.getExpoPushTokenAsync({
         projectId: Constants.expoConfig?.extra?.eas.projectId,
       });
-      console.log(token);
+      console.log("executing line 83", token);
+      savePushToken(token.data);
     } else {
       console.log("Must use physical device for Push Notifications");
     }
@@ -98,12 +111,11 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
+    if (!profile || loading) {
+      return; // Return early if profile is null or loading
+    }
     registerForPushNotificationsAsync().then(async (token) => {
       setExpoPushToken(token?.data);
-      await supabase
-        .from("profiles")
-        .upsert({ id: userId ?? "", expo_push_token: token?.data });
     });
 
     const notificationListener = Notifications.addNotificationReceivedListener(
@@ -119,11 +131,9 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
       });
 
     Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (isMounted || (response && response?.notification)) {
-        return;
+      if (response?.notification) {
+        redirect(response.notification);
       }
-      console.log("I have last Notification...... wow!!");
-      redirect(response?.notification ?? null);
     });
 
     return () => {
@@ -133,9 +143,8 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
       if (responseListener) {
         Notifications.removeNotificationSubscription(responseListener);
       }
-      isMounted = false;
     };
-  }, []);
+  }, [profile, loading]);
 
   const sendPushNotification = async (
     expoPushToken: string,
